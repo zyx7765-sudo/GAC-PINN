@@ -1,4 +1,4 @@
-# GAME-PINN: Geometry-Adaptive and Causality-Aware Physics-Informed Neural Networks
+# GAC-PINN: Geometry-Adaptive and Causality-Aware Physics-Informed Neural Networks
 
 ## 1. 项目简介
 
@@ -123,7 +123,7 @@ python main_pipeline.py
 ├── README.md                    # 说明文档
 ├── requirements.txt             # 依赖清单
 ├── LICENSE                      # MIT License
-├── GAME-PINN/                   # 核心代码
+├── GAC-PINN/                   # 核心代码
 │   ├── main_pipeline.py
 │   ├── models.py
 │   └── pde_library.py

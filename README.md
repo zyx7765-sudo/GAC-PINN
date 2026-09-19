@@ -1,17 +1,16 @@
-# GAC-PINN: Geometry-Adaptive and Causality-Aware Physics-Informed Neural Networks
+# GAC-PINN: Geometry-Adaptive and Constraint-Enhanced Physics-Informed Neural Networks
 
 ## 1. 项目简介
 
-GAME-PINN 是一个面向具有陡峭梯度、强非线性和多尺度特征的物理场模拟问题的 PINN 求解框架。
+GAC-PINN 是一个面向具有陡峭梯度、强非线性和多尺度特征的物理场模拟问题的 PINN 求解框架。
 
-该框架通过四个深度耦合的核心模块，从根本上克服了标准 PINN 的四个关键瓶颈：
+该框架通过四个组件协同工作，克服了标准 PINN 的三个关键瓶颈：
 
-| 瓶颈                            | 解决方案                                   | 对应模块                  |
+| 瓶颈                            | 解决方案                                   | 对应组件                  |
 | :------------------------------ | :----------------------------------------- | :------------------------ |
 | 频谱偏差（高频特征收敛慢）      | 高斯傅里叶特征嵌入，重塑 NTK 频谱          | FFM                       |
 | 几何不灵活性（无法自适应加密）  | 梯度驱动的微分同胚映射，等分布正则化       | AGM                       |
-| 时间因果性违背（逆行时间收敛）  | 算子拓扑判别 + 局部演化度量 + 微分因果包络 | EOTR                      |
-| 边界/初值冲突（软约束梯度竞争） | 自适应硬约束 + 梯度截断 + 带宽门控网络     | Adaptive Hard Constraints |
+| 边界/初值冲突（软约束梯度竞争） | 自适应硬约束 + 算子感知路由 + 带宽门控网络 | Adaptive Hard Constraints |
 
 ### 基准模型引用
 
@@ -32,17 +31,20 @@ GAME-PINN 是一个面向具有陡峭梯度、强非线性和多尺度特征的�
 在本项目中：
 - 三个基准问题的 PDE 设置、初始/边界条件、参考解均与 gPINN 完全相同；
 - 所使用的 `Burgers.npz` 和 `usol_D_0.001_k_5.mat` 数据集直接来源于 gPINN 的官方仓库；
-- 核心创新（AGM、EOTR、FFM、自适应硬约束）为本工作的独立贡献。
+- 核心创新（AGM、FFM、自适应硬约束、算子感知路由）为本工作的独立贡献。
 
 ## 2. 基准实验结果
 
-| 问题                                      | 相对 L² 误差     |
-| :---------------------------------------- | :--------------- |
-| 1D Burgers 方程（粘性冲击波，ν = 0.01/π） | **8.919 × 10⁻⁵** |
-| 2D Poisson 方程（a = 10 极端尖峰）        | **3.077 × 10⁻⁵** |
-| 1D Allen-Cahn 方程（ε = 0.001 尖锐相场）  | **1.010 × 10⁻³** |
+以下结果为 5 个独立随机种子（1234, 5678, 9012, 3456, 7890）下的均值 ± 标准差：
 
-相比最优基线模型，GAME-PINN 在 Burgers 问题上精度提升约 **27 倍**，在 Poisson 问题上提升约 **24 倍**。
+| 问题                                      | 相对 L² 误差                     |
+| :---------------------------------------- | :------------------------------- |
+| 1D Burgers 方程（粘性冲击波，ν = 0.01/π） | **(1.747 ± 0.450) × 10⁻⁴**      |
+| 2D Poisson 方程（a = 10 极端尖峰）        | **(2.868 ± 0.947) × 10⁻⁵**      |
+| 1D Allen-Cahn 方程（ε = 0.001 尖锐相场）  | **(1.756 ± 0.712) × 10⁻³**      |
+| 2D Navier-Stokes 方程（圆柱绕流，压力场） | **2.66 × 10⁻²**                 |
+
+在 Burgers 和 Poisson 问题上，GAC-PINN 的精度分别比最优基线高出约 62 倍和 18 倍（基于平均相对 L² 误差）。
 
 ## 3. 运行环境配置
 
@@ -52,8 +54,8 @@ GAME-PINN 是一个面向具有陡峭梯度、强非线性和多尺度特征的�
 
 ### 创建 Conda 环境
 ```bash
-conda create -n game_pinn python=3.9
-conda activate game_pinn
+conda create -n gac_pinn python=3.9
+conda activate gac_pinn
 ```
 
 ### 安装依赖
@@ -68,12 +70,12 @@ pip install -r requirements.txt
 ## 4. 数据准备
 
 ### 1D Burgers 方程
-需要 `Burgers.npz` 文件，包含 `t`、`x`、`usol` 三个字段，放置于项目根目录。
+需要 `Burgers.npz` 文件，包含 `t`、`x`、`usol` 三个字段，放置于 `dataset/` 目录下。
 
 - 下载：[DeepXDE 官方 Burgers 数据集](https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Burgers.npz)
 
 ### 1D Allen-Cahn 方程
-需要 `usol_D_0.001_k_5.mat` 文件（MATLAB 格式），包含 `u`、`x`、`t` 三个变量，放置于项目根目录。
+需要 `usol_D_0.001_k_5.mat` 文件（MATLAB 格式），包含 `u`、`x`、`t` 三个变量，放置于 `dataset/` 目录下。
 
 - 来源：[gPINN 官方仓库](https://github.com/lu-group/gpin) 的基准数据集
 
@@ -84,7 +86,7 @@ pip install -r requirements.txt
 
 ### 选择运行的方程
 
-打开 `main_pipeline.py`，修改配置开关：
+打开 `main.py`，修改配置开关：
 
 ```python
 # ==============================================================================
@@ -97,20 +99,20 @@ EPOCHS_PHASE1 = 12000                  # Phase 1 训练步数
 
 ### 运行训练
 ```bash
-python main_pipeline.py
+python main.py
 ```
 
 ### 预期输出
 
-训练完成后，控制台输出性能报告（burgers为例）：
+训练完成后，控制台输出性能报告（以 Burgers 为例）：
 
 ```
 ============================================================
       ACADEMIC PERFORMANCE REPORT (UNIFIED FRAMEWORK)
 ============================================================
-时域触发器状态识别 : CAUSAL (预期: CAUSAL)
-总计物理优化步数   : 20000 steps
-最终相对 L2 误差 : 8.919e-05
+算子感知路由判定 : 时间依赖型 (time-dependent)
+总计物理优化步数   : 17000 steps
+最终相对 L2 误差 : 1.747e-04
 ============================================================
 ```
 
@@ -123,10 +125,9 @@ python main_pipeline.py
 ├── README.md                    # 说明文档
 ├── requirements.txt             # 依赖清单
 ├── LICENSE                      # MIT License
-├── GAC-PINN/                   # 核心代码
-│   ├── main_pipeline.py
-│   ├── models.py
-│   └── pde_library.py
+├── main.py                      # 主训练入口
+├── models.py                    # 网络架构（AGM、FFM、自适应硬约束等）
+├── pde.py                       # PDE 定义与硬约束绑定
 ├── dataset/                     # 数据文件
 │   ├── Burgers.npz
 │   └── usol_D_0.001_k_5.mat

@@ -125,9 +125,9 @@ python main.py
 ├── README.md                    # 说明文档
 ├── requirements.txt             # 依赖清单
 ├── LICENSE                      # MIT License
-├── main.py                      # 主训练入口
+├── main_pipeline.py                      # 主训练入口
 ├── models.py                    # 网络架构（AGM、FFM、自适应硬约束等）
-├── pde.py                       # PDE 定义与硬约束绑定
+├── pde_library.py                       # PDE 定义与硬约束绑定
 ├── dataset/                     # 数据文件
 │   ├── Burgers.npz
 │   └── usol_D_0.001_k_5.mat

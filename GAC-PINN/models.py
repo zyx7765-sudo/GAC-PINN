@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 File: models.py
-Description: 统一神经网络架构底座
+Description: 统一神经网络架构
              
 """
 import torch
@@ -14,7 +14,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class AdaptiveMappingNet(nn.Module):
     """
     通用多维自适应流形映射网络 (AGM)
-    将物理空间坐标 x 映射到计算域流形 xi，通过残差控制其空间伸缩
     """
 
     def __init__(self, in_dim=2, equation_name="2D_Poisson"):
@@ -67,9 +66,6 @@ class GaussianFourierFeatureTransform(nn.Module):
 
 
 class CombinedNet(nn.Module):
-    """
-    【算子本征物理模态路由与拓扑因果门控机制 (EOTR)】
-    """
     regularizer = None
 
     def __init__(self, mapping_net, fourier_layer, physics_net, max_points=15000):
@@ -95,8 +91,8 @@ class CombinedNet(nn.Module):
         self.register_buffer('buffer_coords', torch.zeros(max_points, 2))
         self.register_buffer('buffer_S_indicator', torch.zeros(max_points, 1))
         self.current_buffer_size = 0
-        self.current_routing_mode = "BYPASS"   # 默认为稳态
-        self.force_routing_lock = False         # 初始为 False，以便第一次前向时允许路由判定
+        self.current_routing_mode = "BYPASS"   
+        self.force_routing_lock = False        
 
     def apply_output_transform(self, transform):
         self.output_transform = transform
@@ -124,7 +120,6 @@ class CombinedNet(nn.Module):
     def forward(self, x):
         # ====== 【路由判定逻辑】 ======
         if not self.force_routing_lock:
-            # 如果输入维度小于 2（纯空间问题），或者时间维度没有变化（全是 t=0 时刻），则走 BYPASS
             if x.shape[1] < 2:
                 self.current_routing_mode = "BYPASS"
             else:
@@ -146,10 +141,6 @@ class CombinedNet(nn.Module):
         return res
 
     def auto_detect_routing_mode(self, x_sample_np, time_dim_index=None):
-    """
-    基于输入数据的实际时间维度变化，自动判定路由模式。
-    此方法完全规避了 DeepXDE 内部 dde.grad 计算图断裂的问题。
-    """
     # 1. 准备数据
     if not isinstance(x_sample_np, torch.Tensor):
         x_sample = torch.tensor(x_sample_np, dtype=torch.float32, device=next(self.parameters()).device)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 File: main_pipeline.py
-Description: GAME-PINN 统一消融实验解算主入口 (架构Bug彻底修复版)
+Description: GAC-PINN主程序
 """
 import os
 os.environ["DDE_BACKEND"] = "pytorch"
@@ -106,9 +106,8 @@ def main():
     print(f"\n[Model Architecture Info] GAME-PINN Total Trainable Parameters: {total_params:,}\n")
    
 
-    sample_points = geom_domain.random_points(100)  # 采样 100 个探测点
+    sample_points = geom_domain.random_points(100)  
     net.auto_detect_routing_mode(sample_points)
-    # 此时 net.current_routing_mode 已自动设定，且 force_routing_lock 已置为 True
     print(f"DEBUG: 强制路由模式已重置并锁定为: {net.auto_detect_routing_mode}")
 
     bind_hard_constraints(net, CURRENT_EQUATION)

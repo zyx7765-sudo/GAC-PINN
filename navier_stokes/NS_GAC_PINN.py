@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-File: game_pinn_ns_stable_cosine.py
-Description: GAME-PINN 稳健冲刺 10^-3 优化版 (恢复 scale=1.0 + 对称权重 + 引入余弦退火)
+File: gac_pinn_ns.py
 """
 import os
 import time
@@ -68,7 +67,7 @@ p_train = torch.tensor(p_train, dtype=torch.float32, requires_grad=True).to(devi
 
 
 # ==========================================
-# 模块 A: 核心组件 (Fourier Scale 恢复为 1.0)
+# 模块 A: 核心组件
 # ==========================================
 class AdaptiveMappingNet(nn.Module):
     def __init__(self, in_dim=3):
@@ -306,7 +305,7 @@ for epoch in range(2000):
     optimizer_lbfgs.step(closure)
 
 # 保存模型
-torch.save(model.state_dict(), './ns_game_pinn_stable_cosine.pt')
+torch.save(model.state_dict(), './ns_gac_pinn_stable_cosine.pt')
 
 # ==========================================
 # 模块 E: 测试与评估
@@ -341,7 +340,7 @@ minutes = int(total_time // 60)
 seconds = total_time % 60
 
 print("\n" + "=" * 60)
-print(" GAME-PINN (STABLE COSINE-ANNEALING REPORT) ")
+print(" GAC-PINN (STABLE COSINE-ANNEALING REPORT) ")
 print("=" * 60)
 print(f" Total Parameters:      {total_params:,}")
 print(f" Trainable Parameters:  {trainable_params:,}")

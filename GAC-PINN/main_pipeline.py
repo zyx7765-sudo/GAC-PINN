@@ -300,7 +300,7 @@ def main():
                 plt.subplot(1, 2, 1)
                 plt.pcolormesh(T_mesh, X_mesh, u_pred, cmap='jet', shading='gouraud')
                 plt.colorbar(label='Predicted u(x,t)')
-                plt.title("GAME-PINN Unified Prediction (Allen-Cahn)")
+                plt.title("GAC-PINN Unified Prediction (Allen-Cahn)")
                 plt.xlabel("t")
                 plt.ylabel("x")
 

@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-File: gac_pinn_ns.py
-"""
 import os
 import time
 import random

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 File: pde_library.py
-Description: 标准化多物理场PDE方程及硬约束控制边界库（集成时域显式因果门控Ansatz版）
+Description: 标准化多物理场PDE方程及硬约束控制边界库（集成时域显式因果门控Ansatz）
 """
 import torch
 import numpy as np
@@ -12,7 +12,7 @@ nu = 0.01 / np.pi  # Burgers 方程粘性系数
 
 def get_pde_problem(equation_name, a_param=10):
     """
-    一键返回对应的计算几何域、PDE残差定义算子和预期模式
+    返回对应的计算几何域、PDE残差定义算子和预期模式
     """
     if equation_name == "1D_Burgers":
         geom = dde.geometry.Interval(-1, 1)
@@ -80,10 +80,9 @@ def get_pde_problem(equation_name, a_param=10):
 
 
 # ==================================================
-# 严格物理边界硬约束 Ansatz (Output Transforms)
+# 边界硬约束 Ansatz (Output Transforms)
 # ==================================================
 def burgers_hard_constraint(x, y_pred, xi, combined_net_ref):
-    """Burgers 方程专用：时空边界动态平滑硬约束"""
     x_raw, t_raw = x[:, 0:1], x[:, 1:2]
     g_x = -torch.sin(np.pi * x_raw)
 
@@ -102,13 +101,11 @@ def burgers_hard_constraint(x, y_pred, xi, combined_net_ref):
 
 
 def poisson_hard_constraint(x, y_pred, xi, combined_net_ref):
-    """2D 泊松方程专用：空间边界 100% 锁死 Ansatz"""
     x_raw, y_raw = x[:, 0:1], x[:, 1:2]
     return x_raw * y_raw * (1.0 - x_raw) * (1.0 - y_raw) * y_pred
 
 
 def allencahn_hard_constraint(x, y_pred, xi, combined_net_ref):
-    """1D Allen-Cahn 方程专用：自适应时空带宽平滑硬约束"""
     x_raw, t_raw = x[:, 0:1], x[:, 1:2]
     g_x = (x_raw ** 2) * torch.cos(np.pi * x_raw)
 
@@ -123,7 +120,6 @@ def allencahn_hard_constraint(x, y_pred, xi, combined_net_ref):
 
 
 def bind_hard_constraints(net, equation_name):
-    """根据物理方程自动绑定硬约束转换器"""
     if equation_name == "1D_Burgers":
         net.apply_output_transform(burgers_hard_constraint)
     elif equation_name == "2D_Poisson":
